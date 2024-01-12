@@ -56,7 +56,7 @@ Future uploadGamesJsonAction(
 
     var dateTimeOffset = dateTime.add(easternOffset);
     // Format the DateTime object to the desired string:
-    String formattedString =
+    String formattedDate =
         DateFormat('yyyy-MM-dd HH:mm:ss').format(dateTimeOffset);
 
     // Convert league
