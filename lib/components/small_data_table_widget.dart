@@ -66,8 +66,8 @@ class _SmallDataTableWidgetState extends State<SmallDataTableWidget> {
           ),
           child: Padding(
             padding: const EdgeInsets.all(10.0),
-            child: FutureBuilder<List<PicksRow>>(
-              future: PicksTable().queryRows(
+            child: FutureBuilder<List<PicksWithGameDetailsViewRow>>(
+              future: PicksWithGameDetailsViewTable().queryRows(
                 queryFn: (q) => q
                     .eq(
                       'week',
@@ -97,7 +97,8 @@ class _SmallDataTableWidgetState extends State<SmallDataTableWidget> {
                     ),
                   );
                 }
-                List<PicksRow> dataTablePicksRowList = snapshot.data!;
+                List<PicksWithGameDetailsViewRow>
+                    dataTablePicksWithGameDetailsViewRowList = snapshot.data!;
                 return DataTable2(
                   columns: [
                     DataColumn2(
@@ -119,121 +120,71 @@ class _SmallDataTableWidgetState extends State<SmallDataTableWidget> {
                       ),
                     ),
                   ],
-                  rows: dataTablePicksRowList
-                      .mapIndexed((dataTableIndex, dataTablePicksRow) => [
-                            FutureBuilder<List<GamesRow>>(
-                              future: GamesTable().querySingleRow(
-                                queryFn: (q) => q.eq(
-                                  'game_id',
-                                  dataTablePicksRow.gameId,
-                                ),
+                  rows: dataTablePicksWithGameDetailsViewRowList
+                      .mapIndexed((dataTableIndex,
+                              dataTablePicksWithGameDetailsViewRow) =>
+                          [
+                            Text(
+                              valueOrDefault<String>(
+                                dataTablePicksWithGameDetailsViewRow
+                                            .teamSelected ==
+                                        'HOME'
+                                    ? dataTablePicksWithGameDetailsViewRow
+                                        .homeName
+                                    : dataTablePicksWithGameDetailsViewRow
+                                        .awayName,
+                                'Error',
                               ),
-                              builder: (context, snapshot) {
-                                // Customize what your widget looks like when it's loading.
-                                if (!snapshot.hasData) {
-                                  return Center(
-                                    child: SizedBox(
-                                      width: 50.0,
-                                      height: 50.0,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          FlutterFlowTheme.of(context).primary,
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                List<GamesRow> textGamesRowList =
-                                    snapshot.data!;
-                                final textGamesRow = textGamesRowList.isNotEmpty
-                                    ? textGamesRowList.first
-                                    : null;
-                                return Text(
+                              style: FlutterFlowTheme.of(context).bodyMedium,
+                            ),
+                            Row(
+                              mainAxisSize: MainAxisSize.max,
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
                                   valueOrDefault<String>(
-                                    dataTablePicksRow.teamSelected == 'HOME'
-                                        ? textGamesRow?.homeName
-                                        : textGamesRow?.awayName,
+                                    dataTablePicksWithGameDetailsViewRow
+                                                .teamSelected ==
+                                            'HOME'
+                                        ? dataTablePicksWithGameDetailsViewRow
+                                            .homeSpread
+                                            ?.toString()
+                                        : dataTablePicksWithGameDetailsViewRow
+                                            .awaySpread
+                                            ?.toString(),
                                     'Error',
                                   ),
                                   style:
                                       FlutterFlowTheme.of(context).bodyMedium,
-                                );
-                              },
-                            ),
-                            FutureBuilder<List<GamesRow>>(
-                              future: GamesTable().querySingleRow(
-                                queryFn: (q) => q.eq(
-                                  'game_id',
-                                  dataTablePicksRow.gameId,
                                 ),
-                              ),
-                              builder: (context, snapshot) {
-                                // Customize what your widget looks like when it's loading.
-                                if (!snapshot.hasData) {
-                                  return Center(
-                                    child: SizedBox(
-                                      width: 50.0,
-                                      height: 50.0,
-                                      child: CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                          FlutterFlowTheme.of(context).primary,
+                                FlutterFlowIconButton(
+                                  borderColor:
+                                      FlutterFlowTheme.of(context).primary,
+                                  borderRadius: 5.0,
+                                  borderWidth: 1.0,
+                                  buttonSize: 30.0,
+                                  fillColor:
+                                      FlutterFlowTheme.of(context).accent1,
+                                  icon: Icon(
+                                    Icons.zoom_in,
+                                    color: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    size: 15.0,
+                                  ),
+                                  onPressed: () async {
+                                    context.pushNamed(
+                                      'GameZoomPage',
+                                      queryParameters: {
+                                        'gameID': serializeParam(
+                                          dataTablePicksWithGameDetailsViewRow
+                                              .gameId,
+                                          ParamType.String,
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                }
-                                List<GamesRow> rowGamesRowList = snapshot.data!;
-                                final rowGamesRow = rowGamesRowList.isNotEmpty
-                                    ? rowGamesRowList.first
-                                    : null;
-                                return Row(
-                                  mainAxisSize: MainAxisSize.max,
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      valueOrDefault<String>(
-                                        dataTablePicksRow.teamSelected == 'HOME'
-                                            ? rowGamesRow?.homeSpread
-                                                ?.toString()
-                                            : rowGamesRow?.awaySpread
-                                                ?.toString(),
-                                        'Error',
-                                      ),
-                                      style: FlutterFlowTheme.of(context)
-                                          .bodyMedium,
-                                    ),
-                                    FlutterFlowIconButton(
-                                      borderColor:
-                                          FlutterFlowTheme.of(context).primary,
-                                      borderRadius: 5.0,
-                                      borderWidth: 1.0,
-                                      buttonSize: 30.0,
-                                      fillColor:
-                                          FlutterFlowTheme.of(context).accent1,
-                                      icon: Icon(
-                                        Icons.zoom_in,
-                                        color: FlutterFlowTheme.of(context)
-                                            .primaryText,
-                                        size: 15.0,
-                                      ),
-                                      onPressed: () async {
-                                        context.pushNamed(
-                                          'GameZoomPage',
-                                          queryParameters: {
-                                            'gameID': serializeParam(
-                                              dataTablePicksRow.gameId,
-                                              ParamType.String,
-                                            ),
-                                          }.withoutNulls,
-                                        );
-                                      },
-                                    ),
-                                  ].divide(const SizedBox(width: 0.0)),
-                                );
-                              },
+                                      }.withoutNulls,
+                                    );
+                                  },
+                                ),
+                              ].divide(const SizedBox(width: 0.0)),
                             ),
                           ].map((c) => DataCell(c)).toList())
                       .map((e) => DataRow(cells: e))

@@ -25,6 +25,8 @@ class GameCardWidget extends StatefulWidget {
     this.pickID,
     required this.gameID,
     required this.week,
+    required this.homeImageSrc,
+    required this.awayImageSrc,
   });
 
   final String? gameDateTime;
@@ -38,6 +40,8 @@ class GameCardWidget extends StatefulWidget {
   final String? pickID;
   final String? gameID;
   final int? week;
+  final String? homeImageSrc;
+  final String? awayImageSrc;
 
   @override
   _GameCardWidgetState createState() => _GameCardWidgetState();
@@ -164,50 +168,14 @@ class _GameCardWidgetState extends State<GameCardWidget> {
                           Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              FutureBuilder<List<TeamsRow>>(
-                                future: TeamsTable().querySingleRow(
-                                  queryFn: (q) => q.eq(
-                                    'team_name',
-                                    widget.homeTeamName,
-                                  ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.network(
+                                  '${widget.homeImageSrc}',
+                                  width: 40.0,
+                                  height: 40.0,
+                                  fit: BoxFit.cover,
                                 ),
-                                builder: (context, snapshot) {
-                                  // Customize what your widget looks like when it's loading.
-                                  if (!snapshot.hasData) {
-                                    return Center(
-                                      child: SizedBox(
-                                        width: 50.0,
-                                        height: 50.0,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  List<TeamsRow> imageTeamsRowList =
-                                      snapshot.data!;
-                                  // Return an empty Container when the item does not exist.
-                                  if (snapshot.data!.isEmpty) {
-                                    return Container();
-                                  }
-                                  final imageTeamsRow =
-                                      imageTeamsRowList.isNotEmpty
-                                          ? imageTeamsRowList.first
-                                          : null;
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: Image.network(
-                                      imageTeamsRow!.imageSrc!,
-                                      width: 40.0,
-                                      height: 40.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                },
                               ),
                               Text(
                                 '@${valueOrDefault<String>(
@@ -288,50 +256,14 @@ class _GameCardWidgetState extends State<GameCardWidget> {
                           Row(
                             mainAxisSize: MainAxisSize.max,
                             children: [
-                              FutureBuilder<List<TeamsRow>>(
-                                future: TeamsTable().querySingleRow(
-                                  queryFn: (q) => q.eq(
-                                    'team_name',
-                                    widget.awayTeamName,
-                                  ),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(8.0),
+                                child: Image.network(
+                                  '${widget.awayImageSrc}',
+                                  width: 40.0,
+                                  height: 40.0,
+                                  fit: BoxFit.cover,
                                 ),
-                                builder: (context, snapshot) {
-                                  // Customize what your widget looks like when it's loading.
-                                  if (!snapshot.hasData) {
-                                    return Center(
-                                      child: SizedBox(
-                                        width: 50.0,
-                                        height: 50.0,
-                                        child: CircularProgressIndicator(
-                                          valueColor:
-                                              AlwaysStoppedAnimation<Color>(
-                                            FlutterFlowTheme.of(context)
-                                                .primary,
-                                          ),
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                  List<TeamsRow> imageTeamsRowList =
-                                      snapshot.data!;
-                                  // Return an empty Container when the item does not exist.
-                                  if (snapshot.data!.isEmpty) {
-                                    return Container();
-                                  }
-                                  final imageTeamsRow =
-                                      imageTeamsRowList.isNotEmpty
-                                          ? imageTeamsRowList.first
-                                          : null;
-                                  return ClipRRect(
-                                    borderRadius: BorderRadius.circular(8.0),
-                                    child: Image.network(
-                                      imageTeamsRow!.imageSrc!,
-                                      width: 40.0,
-                                      height: 40.0,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  );
-                                },
                               ),
                               Text(
                                 valueOrDefault<String>(
@@ -343,7 +275,8 @@ class _GameCardWidgetState extends State<GameCardWidget> {
                                     .override(
                                       fontFamily: 'Readex Pro',
                                       color: _model.awayTeamSelected
-                                          ? FlutterFlowTheme.of(context).success
+                                          ? FlutterFlowTheme.of(context)
+                                              .secondary
                                           : FlutterFlowTheme.of(context)
                                               .primaryText,
                                       fontWeight: FontWeight.w500,
@@ -364,7 +297,8 @@ class _GameCardWidgetState extends State<GameCardWidget> {
                                     .override(
                                       fontFamily: 'Readex Pro',
                                       color: _model.awayTeamSelected
-                                          ? FlutterFlowTheme.of(context).success
+                                          ? FlutterFlowTheme.of(context)
+                                              .secondary
                                           : FlutterFlowTheme.of(context)
                                               .primaryText,
                                       fontWeight: FontWeight.w500,

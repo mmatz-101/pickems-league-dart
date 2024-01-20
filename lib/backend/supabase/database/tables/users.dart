@@ -28,4 +28,10 @@ class UsersRow extends SupabaseDataRow {
 
   String get lastName => getField<String>('last_name')!;
   set lastName(String value) => setField<String>('last_name', value);
+
+  String? get avatar => getField<String>('avatar');
+  set avatar(String? value) => setField<String>('avatar', value);
+
+  bool get admin => getField<bool>('admin')!;
+  set admin(bool value) => setField<bool>('admin', value);
 }

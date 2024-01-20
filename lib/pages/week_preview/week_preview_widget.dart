@@ -177,12 +177,11 @@ class _WeekPreviewWidgetState extends State<WeekPreviewWidget>
                       return 800.0;
                     }
                   }(),
-                  height: MediaQuery.sizeOf(context).height * 0.9,
+                  height: double.infinity,
                   constraints: const BoxConstraints(
                     maxWidth: 900.0,
                   ),
                   decoration: const BoxDecoration(),
-                  alignment: const AlignmentDirectional(0.0, -1.0),
                   child: Column(
                     mainAxisSize: MainAxisSize.max,
                     children: [
@@ -195,364 +194,411 @@ class _WeekPreviewWidgetState extends State<WeekPreviewWidget>
                           ),
                         ],
                       ),
-                      Expanded(
-                        child: Column(
-                          children: [
-                            Align(
-                              alignment: const Alignment(0.0, 0),
-                              child: TabBar(
-                                labelColor:
-                                    FlutterFlowTheme.of(context).primaryText,
-                                unselectedLabelColor:
-                                    FlutterFlowTheme.of(context).secondaryText,
-                                labelStyle:
-                                    FlutterFlowTheme.of(context).titleMedium,
-                                unselectedLabelStyle: const TextStyle(),
-                                indicatorColor:
-                                    FlutterFlowTheme.of(context).primary,
-                                padding: const EdgeInsets.all(4.0),
-                                tabs: const [
-                                  Tab(
-                                    text: 'NFL',
-                                  ),
-                                  Tab(
-                                    text: 'NCAA',
-                                  ),
-                                ],
-                                controller: _model.tabBarController,
-                                onTap: (i) async {
-                                  [() async {}, () async {}][i]();
-                                },
-                              ),
+                      Container(
+                        width: double.infinity,
+                        height: MediaQuery.sizeOf(context).height * 0.9,
+                        decoration: const BoxDecoration(),
+                        child: FutureBuilder<List<GamesWithUrlsRow>>(
+                          future: GamesWithUrlsTable().queryRows(
+                            queryFn: (q) => q.eq(
+                              'week',
+                              weekPreviewGlobalVarRow?.currentWeek,
                             ),
-                            Expanded(
-                              child: TabBarView(
-                                controller: _model.tabBarController,
-                                children: [
-                                  KeepAliveWidgetWrapper(
-                                    builder: (context) =>
-                                        FutureBuilder<List<GamesRow>>(
-                                      future: GamesTable().queryRows(
-                                        queryFn: (q) => q
-                                            .eq(
-                                              'week',
-                                              weekPreviewGlobalVarRow
-                                                  ?.currentWeek,
-                                            )
-                                            .eq(
-                                              'league',
-                                              'NFL',
-                                            ),
-                                      ),
-                                      builder: (context, snapshot) {
-                                        // Customize what your widget looks like when it's loading.
-                                        if (!snapshot.hasData) {
-                                          return Center(
-                                            child: SizedBox(
-                                              width: 50.0,
-                                              height: 50.0,
-                                              child: CircularProgressIndicator(
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        List<GamesRow> wrapGamesRowList =
-                                            snapshot.data!;
-                                        return Wrap(
-                                          spacing: 20.0,
-                                          runSpacing: 10.0,
-                                          alignment: WrapAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.start,
-                                          direction: Axis.horizontal,
-                                          runAlignment: WrapAlignment.start,
-                                          verticalDirection:
-                                              VerticalDirection.down,
-                                          clipBehavior: Clip.none,
-                                          children: List.generate(
-                                              wrapGamesRowList.length,
-                                              (wrapIndex) {
-                                            final wrapGamesRow =
-                                                wrapGamesRowList[wrapIndex];
-                                            return FutureBuilder<
-                                                List<PicksRow>>(
-                                              future:
-                                                  PicksTable().querySingleRow(
-                                                queryFn: (q) => q
-                                                    .eq(
-                                                      'user_id',
-                                                      currentUserUid,
-                                                    )
-                                                    .eq(
-                                                      'game_id',
-                                                      wrapGamesRow.gameId,
-                                                    ),
-                                              ),
-                                              builder: (context, snapshot) {
-                                                // Customize what your widget looks like when it's loading.
-                                                if (!snapshot.hasData) {
-                                                  return Center(
-                                                    child: SizedBox(
-                                                      width: 50.0,
-                                                      height: 50.0,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                Color>(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                                List<PicksRow>
-                                                    gameCardPicksRowList =
-                                                    snapshot.data!;
-                                                final gameCardPicksRow =
-                                                    gameCardPicksRowList
-                                                            .isNotEmpty
-                                                        ? gameCardPicksRowList
-                                                            .first
-                                                        : null;
-                                                return wrapWithModel(
-                                                  model: _model.gameCardModels1
-                                                      .getModel(
-                                                    '${wrapGamesRow.homeAbbreviation}${wrapGamesRow.awayAbbreviation}',
-                                                    wrapIndex,
-                                                  ),
-                                                  updateCallback: () =>
-                                                      setState(() {}),
-                                                  child: GameCardWidget(
-                                                    key: Key(
-                                                      'Keysz5_${'${wrapGamesRow.homeAbbreviation}${wrapGamesRow.awayAbbreviation}'}',
-                                                    ),
-                                                    gameDateTime:
-                                                        dateTimeFormat(
-                                                            'M/d h:mm a',
-                                                            wrapGamesRow.date!),
-                                                    networkProvider:
-                                                        wrapGamesRow.tvStation,
-                                                    homeTeamName:
-                                                        valueOrDefault<String>(
-                                                      wrapGamesRow.homeName,
-                                                      'Error Loading',
-                                                    ),
-                                                    homeTeamSpread:
-                                                        wrapGamesRow.homeSpread,
-                                                    awayTeamName:
-                                                        valueOrDefault<String>(
-                                                      wrapGamesRow.awayName,
-                                                      'Error Loading',
-                                                    ),
-                                                    awayTeamSpread:
-                                                        wrapGamesRow.awaySpread,
-                                                    lastUpdate: dateTimeFormat(
-                                                        'M/d h:mm a',
-                                                        wrapGamesRow.updated!),
-                                                    teamSelected: () {
-                                                      if (gameCardPicksRow
-                                                              ?.teamSelected ==
-                                                          'HOME') {
-                                                        return TeamSelected
-                                                            .home;
-                                                      } else if (gameCardPicksRow
-                                                              ?.teamSelected ==
-                                                          'AWAY') {
-                                                        return TeamSelected
-                                                            .away;
-                                                      } else {
-                                                        return null;
-                                                      }
-                                                    }(),
-                                                    pickID: gameCardPicksRow
-                                                        ?.pickId,
-                                                    gameID: wrapGamesRow.gameId,
-                                                    week:
-                                                        weekPreviewGlobalVarRow!
-                                                            .currentWeek,
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          }),
-                                        ).animateOnPageLoad(animationsMap[
-                                            'wrapOnPageLoadAnimation1']!);
-                                      },
+                          ),
+                          builder: (context, snapshot) {
+                            // Customize what your widget looks like when it's loading.
+                            if (!snapshot.hasData) {
+                              return Center(
+                                child: SizedBox(
+                                  width: 50.0,
+                                  height: 50.0,
+                                  child: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      FlutterFlowTheme.of(context).primary,
                                     ),
                                   ),
-                                  KeepAliveWidgetWrapper(
-                                    builder: (context) =>
-                                        FutureBuilder<List<GamesRow>>(
-                                      future: GamesTable().queryRows(
-                                        queryFn: (q) => q
-                                            .eq(
-                                              'week',
-                                              weekPreviewGlobalVarRow
-                                                  ?.currentWeek,
-                                            )
-                                            .eq(
-                                              'league',
-                                              'NCAA',
-                                            ),
+                                ),
+                              );
+                            }
+                            List<GamesWithUrlsRow> tabBarGamesWithUrlsRowList =
+                                snapshot.data!;
+                            return Column(
+                              children: [
+                                Align(
+                                  alignment: const Alignment(0.0, 0),
+                                  child: TabBar(
+                                    labelColor: FlutterFlowTheme.of(context)
+                                        .primaryText,
+                                    unselectedLabelColor:
+                                        FlutterFlowTheme.of(context)
+                                            .secondaryText,
+                                    labelStyle: FlutterFlowTheme.of(context)
+                                        .titleMedium,
+                                    unselectedLabelStyle: const TextStyle(),
+                                    indicatorColor:
+                                        FlutterFlowTheme.of(context).primary,
+                                    padding: const EdgeInsets.all(4.0),
+                                    tabs: const [
+                                      Tab(
+                                        text: 'NFL',
                                       ),
-                                      builder: (context, snapshot) {
-                                        // Customize what your widget looks like when it's loading.
-                                        if (!snapshot.hasData) {
-                                          return Center(
-                                            child: SizedBox(
-                                              width: 50.0,
-                                              height: 50.0,
-                                              child: CircularProgressIndicator(
-                                                valueColor:
-                                                    AlwaysStoppedAnimation<
-                                                        Color>(
-                                                  FlutterFlowTheme.of(context)
-                                                      .primary,
-                                                ),
-                                              ),
-                                            ),
-                                          );
-                                        }
-                                        List<GamesRow> wrapGamesRowList =
-                                            snapshot.data!;
-                                        return Wrap(
-                                          spacing: 20.0,
-                                          runSpacing: 10.0,
-                                          alignment: WrapAlignment.spaceEvenly,
-                                          crossAxisAlignment:
-                                              WrapCrossAlignment.start,
-                                          direction: Axis.horizontal,
-                                          runAlignment: WrapAlignment.start,
-                                          verticalDirection:
-                                              VerticalDirection.down,
-                                          clipBehavior: Clip.none,
-                                          children: List.generate(
-                                              wrapGamesRowList.length,
-                                              (wrapIndex) {
-                                            final wrapGamesRow =
-                                                wrapGamesRowList[wrapIndex];
-                                            return FutureBuilder<
-                                                List<PicksRow>>(
-                                              future:
-                                                  PicksTable().querySingleRow(
-                                                queryFn: (q) => q
-                                                    .eq(
-                                                      'user_id',
-                                                      currentUserUid,
-                                                    )
-                                                    .eq(
-                                                      'game_id',
-                                                      wrapGamesRow.gameId,
-                                                    ),
-                                              ),
-                                              builder: (context, snapshot) {
-                                                // Customize what your widget looks like when it's loading.
-                                                if (!snapshot.hasData) {
-                                                  return Center(
-                                                    child: SizedBox(
-                                                      width: 50.0,
-                                                      height: 50.0,
-                                                      child:
-                                                          CircularProgressIndicator(
-                                                        valueColor:
-                                                            AlwaysStoppedAnimation<
-                                                                Color>(
-                                                          FlutterFlowTheme.of(
-                                                                  context)
-                                                              .primary,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  );
-                                                }
-                                                List<PicksRow>
-                                                    gameCardPicksRowList =
-                                                    snapshot.data!;
-                                                final gameCardPicksRow =
-                                                    gameCardPicksRowList
-                                                            .isNotEmpty
-                                                        ? gameCardPicksRowList
-                                                            .first
-                                                        : null;
-                                                return wrapWithModel(
-                                                  model: _model.gameCardModels2
-                                                      .getModel(
-                                                    '${wrapGamesRow.homeAbbreviation}${wrapGamesRow.awayAbbreviation}',
-                                                    wrapIndex,
-                                                  ),
-                                                  updateCallback: () =>
-                                                      setState(() {}),
-                                                  child: GameCardWidget(
-                                                    key: Key(
-                                                      'Key5s5_${'${wrapGamesRow.homeAbbreviation}${wrapGamesRow.awayAbbreviation}'}',
-                                                    ),
-                                                    gameDateTime:
-                                                        dateTimeFormat(
-                                                            'M/d h:mm a',
-                                                            wrapGamesRow.date!),
-                                                    networkProvider:
-                                                        wrapGamesRow.tvStation,
-                                                    homeTeamName:
-                                                        valueOrDefault<String>(
-                                                      wrapGamesRow.homeName,
-                                                      'Error Loading',
-                                                    ),
-                                                    homeTeamSpread:
-                                                        wrapGamesRow.homeSpread,
-                                                    awayTeamName:
-                                                        valueOrDefault<String>(
-                                                      wrapGamesRow.awayName,
-                                                      'Error Loading',
-                                                    ),
-                                                    awayTeamSpread:
-                                                        wrapGamesRow.awaySpread,
-                                                    lastUpdate: dateTimeFormat(
-                                                        'M/d h:mm a',
-                                                        wrapGamesRow.updated!),
-                                                    teamSelected: () {
-                                                      if (gameCardPicksRow
-                                                              ?.teamSelected ==
-                                                          'HOME') {
-                                                        return TeamSelected
-                                                            .home;
-                                                      } else if (gameCardPicksRow
-                                                              ?.teamSelected ==
-                                                          'AWAY') {
-                                                        return TeamSelected
-                                                            .away;
-                                                      } else {
-                                                        return null;
-                                                      }
-                                                    }(),
-                                                    pickID: gameCardPicksRow
-                                                        ?.pickId,
-                                                    gameID: wrapGamesRow.gameId,
-                                                    week:
-                                                        weekPreviewGlobalVarRow!
-                                                            .currentWeek,
-                                                  ),
-                                                );
-                                              },
-                                            );
-                                          }),
-                                        ).animateOnPageLoad(animationsMap[
-                                            'wrapOnPageLoadAnimation2']!);
-                                      },
-                                    ),
+                                      Tab(
+                                        text: 'NCAA',
+                                      ),
+                                    ],
+                                    controller: _model.tabBarController,
+                                    onTap: (i) async {
+                                      [() async {}, () async {}][i]();
+                                    },
                                   ),
-                                ],
-                              ),
-                            ),
-                          ],
+                                ),
+                                Expanded(
+                                  child: TabBarView(
+                                    controller: _model.tabBarController,
+                                    children: [
+                                      KeepAliveWidgetWrapper(
+                                        builder: (context) =>
+                                            SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Builder(
+                                                builder: (context) {
+                                                  final tabBarNFL =
+                                                      tabBarGamesWithUrlsRowList
+                                                          .where((e) =>
+                                                              e.league == 'NFL')
+                                                          .toList();
+                                                  return Wrap(
+                                                    spacing: 20.0,
+                                                    runSpacing: 10.0,
+                                                    alignment: WrapAlignment
+                                                        .spaceEvenly,
+                                                    crossAxisAlignment:
+                                                        WrapCrossAlignment
+                                                            .start,
+                                                    direction: Axis.horizontal,
+                                                    runAlignment:
+                                                        WrapAlignment.start,
+                                                    verticalDirection:
+                                                        VerticalDirection.down,
+                                                    clipBehavior: Clip.none,
+                                                    children: List.generate(
+                                                        tabBarNFL.length,
+                                                        (tabBarNFLIndex) {
+                                                      final tabBarNFLItem =
+                                                          tabBarNFL[
+                                                              tabBarNFLIndex];
+                                                      return FutureBuilder<
+                                                          List<PicksRow>>(
+                                                        future: PicksTable()
+                                                            .querySingleRow(
+                                                          queryFn: (q) => q
+                                                              .eq(
+                                                                'game_id',
+                                                                tabBarNFLItem
+                                                                    .gameId,
+                                                              )
+                                                              .eq(
+                                                                'user_id',
+                                                                currentUserUid,
+                                                              ),
+                                                        ),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          // Customize what your widget looks like when it's loading.
+                                                          if (!snapshot
+                                                              .hasData) {
+                                                            return Center(
+                                                              child: SizedBox(
+                                                                width: 50.0,
+                                                                height: 50.0,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                  valueColor:
+                                                                      AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primary,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }
+                                                          List<PicksRow>
+                                                              gameCardPicksRowList =
+                                                              snapshot.data!;
+                                                          final gameCardPicksRow =
+                                                              gameCardPicksRowList
+                                                                      .isNotEmpty
+                                                                  ? gameCardPicksRowList
+                                                                      .first
+                                                                  : null;
+                                                          return wrapWithModel(
+                                                            model: _model
+                                                                .gameCardModels1
+                                                                .getModel(
+                                                              '${tabBarNFLItem.homeAbbreviation}${tabBarNFLItem.awayAbbreviation}',
+                                                              tabBarNFLIndex,
+                                                            ),
+                                                            updateCallback:
+                                                                () => setState(
+                                                                    () {}),
+                                                            child:
+                                                                GameCardWidget(
+                                                              key: Key(
+                                                                'Keysz5_${'${tabBarNFLItem.homeAbbreviation}${tabBarNFLItem.awayAbbreviation}'}',
+                                                              ),
+                                                              gameDateTime:
+                                                                  dateTimeFormat(
+                                                                      'M/d h:mm a',
+                                                                      tabBarNFLItem
+                                                                          .date!),
+                                                              networkProvider:
+                                                                  tabBarNFLItem
+                                                                      .tvStation,
+                                                              homeTeamName:
+                                                                  valueOrDefault<
+                                                                      String>(
+                                                                tabBarNFLItem
+                                                                    .homeName,
+                                                                'Error Loading',
+                                                              ),
+                                                              homeTeamSpread:
+                                                                  tabBarNFLItem
+                                                                      .homeSpread,
+                                                              awayTeamName:
+                                                                  valueOrDefault<
+                                                                      String>(
+                                                                tabBarNFLItem
+                                                                    .awayName,
+                                                                'Error Loading',
+                                                              ),
+                                                              awayTeamSpread:
+                                                                  tabBarNFLItem
+                                                                      .awaySpread,
+                                                              lastUpdate: dateTimeFormat(
+                                                                  'M/d h:mm a',
+                                                                  tabBarNFLItem
+                                                                      .updated!),
+                                                              teamSelected: () {
+                                                                if (gameCardPicksRow
+                                                                        ?.teamSelected ==
+                                                                    'HOME') {
+                                                                  return TeamSelected
+                                                                      .home;
+                                                                } else if (gameCardPicksRow
+                                                                        ?.teamSelected ==
+                                                                    'AWAY') {
+                                                                  return TeamSelected
+                                                                      .away;
+                                                                } else {
+                                                                  return null;
+                                                                }
+                                                              }(),
+                                                              pickID:
+                                                                  gameCardPicksRow
+                                                                      ?.pickId,
+                                                              gameID:
+                                                                  tabBarNFLItem
+                                                                      .gameId!,
+                                                              week: weekPreviewGlobalVarRow!
+                                                                  .currentWeek,
+                                                              homeImageSrc:
+                                                                  tabBarNFLItem
+                                                                      .homeImageSrc!,
+                                                              awayImageSrc:
+                                                                  tabBarNFLItem
+                                                                      .awayImageSrc!,
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
+                                                    }),
+                                                  ).animateOnPageLoad(animationsMap[
+                                                      'wrapOnPageLoadAnimation1']!);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      KeepAliveWidgetWrapper(
+                                        builder: (context) =>
+                                            SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.max,
+                                            children: [
+                                              Builder(
+                                                builder: (context) {
+                                                  final tabBarNCAA =
+                                                      tabBarGamesWithUrlsRowList
+                                                          .where((e) =>
+                                                              e.league ==
+                                                              'NCAA')
+                                                          .toList();
+                                                  return Wrap(
+                                                    spacing: 20.0,
+                                                    runSpacing: 10.0,
+                                                    alignment: WrapAlignment
+                                                        .spaceEvenly,
+                                                    crossAxisAlignment:
+                                                        WrapCrossAlignment
+                                                            .start,
+                                                    direction: Axis.horizontal,
+                                                    runAlignment:
+                                                        WrapAlignment.start,
+                                                    verticalDirection:
+                                                        VerticalDirection.down,
+                                                    clipBehavior: Clip.none,
+                                                    children: List.generate(
+                                                        tabBarNCAA.length,
+                                                        (tabBarNCAAIndex) {
+                                                      final tabBarNCAAItem =
+                                                          tabBarNCAA[
+                                                              tabBarNCAAIndex];
+                                                      return FutureBuilder<
+                                                          List<PicksRow>>(
+                                                        future: PicksTable()
+                                                            .querySingleRow(
+                                                          queryFn: (q) => q
+                                                              .eq(
+                                                                'game_id',
+                                                                tabBarNCAAItem
+                                                                    .gameId,
+                                                              )
+                                                              .eq(
+                                                                'user_id',
+                                                                currentUserUid,
+                                                              ),
+                                                        ),
+                                                        builder: (context,
+                                                            snapshot) {
+                                                          // Customize what your widget looks like when it's loading.
+                                                          if (!snapshot
+                                                              .hasData) {
+                                                            return Center(
+                                                              child: SizedBox(
+                                                                width: 50.0,
+                                                                height: 50.0,
+                                                                child:
+                                                                    CircularProgressIndicator(
+                                                                  valueColor:
+                                                                      AlwaysStoppedAnimation<
+                                                                          Color>(
+                                                                    FlutterFlowTheme.of(
+                                                                            context)
+                                                                        .primary,
+                                                                  ),
+                                                                ),
+                                                              ),
+                                                            );
+                                                          }
+                                                          List<PicksRow>
+                                                              gameCardPicksRowList =
+                                                              snapshot.data!;
+                                                          final gameCardPicksRow =
+                                                              gameCardPicksRowList
+                                                                      .isNotEmpty
+                                                                  ? gameCardPicksRowList
+                                                                      .first
+                                                                  : null;
+                                                          return wrapWithModel(
+                                                            model: _model
+                                                                .gameCardModels2
+                                                                .getModel(
+                                                              '${tabBarNCAAItem.homeAbbreviation}${tabBarNCAAItem.homeAbbreviation}',
+                                                              tabBarNCAAIndex,
+                                                            ),
+                                                            updateCallback:
+                                                                () => setState(
+                                                                    () {}),
+                                                            child:
+                                                                GameCardWidget(
+                                                              key: Key(
+                                                                'Keybt0_${'${tabBarNCAAItem.homeAbbreviation}${tabBarNCAAItem.homeAbbreviation}'}',
+                                                              ),
+                                                              gameDateTime:
+                                                                  dateTimeFormat(
+                                                                      'M/d h:mm a',
+                                                                      tabBarNCAAItem
+                                                                          .date!),
+                                                              networkProvider:
+                                                                  tabBarNCAAItem
+                                                                      .tvStation,
+                                                              homeTeamName:
+                                                                  valueOrDefault<
+                                                                      String>(
+                                                                tabBarNCAAItem
+                                                                    .homeName,
+                                                                'Error Loading',
+                                                              ),
+                                                              homeTeamSpread:
+                                                                  tabBarNCAAItem
+                                                                      .homeSpread,
+                                                              awayTeamName:
+                                                                  valueOrDefault<
+                                                                      String>(
+                                                                tabBarNCAAItem
+                                                                    .awayName,
+                                                                'Error Loading',
+                                                              ),
+                                                              awayTeamSpread:
+                                                                  tabBarNCAAItem
+                                                                      .awaySpread,
+                                                              lastUpdate: dateTimeFormat(
+                                                                  'M/d h:mm a',
+                                                                  tabBarNCAAItem
+                                                                      .updated!),
+                                                              teamSelected: () {
+                                                                if (gameCardPicksRow
+                                                                        ?.teamSelected ==
+                                                                    'HOME') {
+                                                                  return TeamSelected
+                                                                      .home;
+                                                                } else if (gameCardPicksRow
+                                                                        ?.teamSelected ==
+                                                                    'AWAY') {
+                                                                  return TeamSelected
+                                                                      .away;
+                                                                } else {
+                                                                  return null;
+                                                                }
+                                                              }(),
+                                                              pickID:
+                                                                  gameCardPicksRow
+                                                                      ?.pickId,
+                                                              gameID:
+                                                                  tabBarNCAAItem
+                                                                      .gameId!,
+                                                              week: weekPreviewGlobalVarRow!
+                                                                  .currentWeek,
+                                                              homeImageSrc:
+                                                                  tabBarNCAAItem
+                                                                      .homeImageSrc!,
+                                                              awayImageSrc:
+                                                                  tabBarNCAAItem
+                                                                      .awayImageSrc!,
+                                                            ),
+                                                          );
+                                                        },
+                                                      );
+                                                    }),
+                                                  ).animateOnPageLoad(animationsMap[
+                                                      'wrapOnPageLoadAnimation2']!);
+                                                },
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
                         ),
                       ),
                     ],
